@@ -1,9 +1,9 @@
 import "./style.css";
 import * as PIXI from "pixi.js";
-import { Tile } from "./tile";
-import { scaleLinear } from "d3";
-import { createNoise3D } from "simplex-noise";
 import {Graphics} from "pixi.js";
+import {Tile} from "./tile";
+import {scaleLinear} from "d3";
+import {createNoise3D} from "simplex-noise";
 
 const element = document.querySelector("#app");
 
@@ -34,21 +34,22 @@ const TILE_DENSITY = 4 / 100; // tile per pixel (linear)
 
 const tiles: Tile[] = [];
 
-const xCount = Math.round(TILE_DENSITY * dimensions.width);
-const yCount = Math.round(TILE_DENSITY * dimensions.height);
+const xCount = Math.ceil(TILE_DENSITY * dimensions.width);
+const yCount = Math.ceil(TILE_DENSITY * dimensions.height);
 
 const xScale = scaleLinear([0, xCount], [0, dimensions.width]);
 const yScale = scaleLinear([0, yCount], [0, dimensions.height]);
 
-
+let isOffset = true;
 for (let y = 0; y < yCount; y++) {
-  for (let x = 0; x < xCount; x++) {
+  for (let x = isOffset ? 0 : 1; x < xCount; x++) {
     const tile = new Tile(app, texture);
-    tile.sprite.x = xScale(x);
-    tile.sprite.y = yScale(y);
+    tile.sprite.x = xScale(x) + (isOffset ? 14 : 0);
+    tile.sprite.y = yScale(y) + 14;
 
     tiles.push(tile);
   }
+  isOffset = !isOffset;
 }
 
 // Add a ticker callback to move the sprite back and forth

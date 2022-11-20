@@ -2,7 +2,7 @@ import * as PIXI from "pixi.js";
 import { Graphics, Sprite } from "pixi.js";
 import { scaleLinear } from "d3";
 
-const MAX_SCALE = 0.07;
+const MAX_SCALE = 0.08;
 
 export class Tile {
   sprite: PIXI.Sprite;
