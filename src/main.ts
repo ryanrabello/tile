@@ -1,23 +1,70 @@
-import './style.css'
-import * as PIXI from 'pixi.js';
-import typescriptLogoURL from './typescript.svg'
+import "./style.css";
+import * as PIXI from "pixi.js";
+import { Tile } from "./tile";
+import { scaleLinear } from "d3";
+import { createNoise3D } from "simplex-noise";
+import {Graphics} from "pixi.js";
 
-const element = document.querySelector('#app');
+const element = document.querySelector("#app");
 
 // Create the application helper and add its render target to the page
 const doc = document.documentElement;
-const app = new PIXI.Application({ width: doc.clientWidth, height: doc.clientHeight });
+const dimensions = { width: doc.clientWidth, height: doc.clientHeight };
+// TODO: get resolution higher
+const app = new PIXI.Application({
+  ...dimensions,
+  backgroundAlpha: 0,
+  antialias: true,
+});
 // @ts-ignore
 element!.appendChild(app.view);
 
-// Create the sprite and add it to the stage
-const sprite = PIXI.Sprite.from(typescriptLogoURL);
-app.stage.addChild(sprite);
+// Create sprite texture
+const R = 200;
+const g = new Graphics();
+// const c = '#0862ec';
+g.beginFill(0x0862ec);
+g.lineStyle(0);
+g.drawCircle(0, 0, R);
+g.endFill();
+const texture = app.renderer.generateTexture(g) as unknown as PIXI.Texture;
+
+// Create tile coordinates
+const TILE_DENSITY = 4 / 100; // tile per pixel (linear)
+
+const tiles: Tile[] = [];
+
+const xCount = Math.round(TILE_DENSITY * dimensions.width);
+const yCount = Math.round(TILE_DENSITY * dimensions.height);
+
+const xScale = scaleLinear([0, xCount], [0, dimensions.width]);
+const yScale = scaleLinear([0, yCount], [0, dimensions.height]);
+
+
+for (let y = 0; y < yCount; y++) {
+  for (let x = 0; x < xCount; x++) {
+    const tile = new Tile(app, texture);
+    tile.sprite.x = xScale(x);
+    tile.sprite.y = yScale(y);
+
+    tiles.push(tile);
+  }
+}
 
 // Add a ticker callback to move the sprite back and forth
 let elapsed = 0.0;
+const noise3D = createNoise3D();
 app.ticker.add((delta) => {
   elapsed += delta;
-  sprite.x = 100.0 + Math.cos(elapsed/50.0) * 100.0;
-  sprite.y = 100.0 + Math.sin(elapsed/25) * 100.0;
+  const tNoise = elapsed / 200;
+  tiles.forEach((tile) => {
+    const NOISE_SPACE_SCALE = 1000;
+    tile.setScale(
+      noise3D(
+        tile.sprite.x / NOISE_SPACE_SCALE,
+        tile.sprite.y / NOISE_SPACE_SCALE,
+        tNoise
+      )
+    );
+  });
 });
