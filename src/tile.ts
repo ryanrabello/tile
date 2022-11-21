@@ -1,5 +1,5 @@
 import * as PIXI from "pixi.js";
-import { Graphics, Sprite } from "pixi.js";
+import { Sprite } from "pixi.js";
 import { scaleLinear } from "d3";
 
 const MAX_SCALE = 0.08;
