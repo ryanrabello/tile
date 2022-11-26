@@ -30,6 +30,6 @@ export class Tile {
   }
   tick(delta: number) {
     //  delta ~ 0.5 on 120 fps screen
-    this.cursorSize -= .3 / 120 / delta;
+    this.cursorSize -= .01 * delta;
   }
 }
