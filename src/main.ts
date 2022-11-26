@@ -64,6 +64,11 @@ for (let y = 0; y < yCount; y++) {
   isOffset = !isOffset;
 }
 
+// Add iron sprite after hex tile
+tiles.forEach((tile) => {
+  app.stage.addChild(tile.ironSprite);
+})
+
 // Mouse following
 const interactor = new Sprite(Texture.EMPTY);
 interactor.x = 0;

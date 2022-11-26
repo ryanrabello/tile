@@ -26,7 +26,7 @@ export class Tile {
     this.ironSprite = ironSprite;
     ironSprite.anchor.set(0.5);
     ironSprite.scale.set(0);
-    app.stage.addChild(ironSprite);
+    // app.stage.addChild(ironSprite);
   }
 
   private setScale(s: number) {
@@ -46,7 +46,7 @@ export class Tile {
     const angle = Math.atan2(-yDiff, -xDiff);
 
     this.setScale(asymptoticScale);
-    if (asymptoticScale > .5) {
+    if (asymptoticScale > 0.2) {
       this.setAngle(angle);
     }
   }
