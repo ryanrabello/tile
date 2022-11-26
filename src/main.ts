@@ -1,6 +1,6 @@
 import "./style.css";
 import * as PIXI from "pixi.js";
-import { Container, Graphics, Rectangle, Sprite, Texture } from "pixi.js";
+import { Graphics, Sprite, Texture } from "pixi.js";
 import { Tile } from "./tile";
 import { scaleLinear } from "d3";
 import { createNoise3D } from "simplex-noise";
