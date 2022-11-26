@@ -1,9 +1,9 @@
 import "./style.css";
 import * as PIXI from "pixi.js";
-import {Graphics} from "pixi.js";
-import {Tile} from "./tile";
-import {scaleLinear} from "d3";
-import {createNoise3D} from "simplex-noise";
+import { Container, Graphics, Rectangle, Sprite, Texture } from "pixi.js";
+import { Tile } from "./tile";
+import { scaleLinear } from "d3";
+import { createNoise3D } from "simplex-noise";
 
 const element = document.querySelector("#app");
 
@@ -52,6 +52,23 @@ for (let y = 0; y < yCount; y++) {
   isOffset = !isOffset;
 }
 
+// Mouse following
+const interactor = new Sprite(Texture.EMPTY);
+
+interactor.x = 0;
+interactor.y = 0;
+interactor.width = dimensions.width;
+interactor.height = dimensions.height;
+app.stage.addChild(interactor);
+
+const mouseposition = { x: 0, y: 0 };
+let handler = (event: { global: { x: number; y: number } }) => {
+  mouseposition.x = event.global.x;
+  mouseposition.y = event.global.y;
+};
+interactor.interactive = true;
+interactor.on("pointermove", handler);
+
 // Add a ticker callback to move the sprite back and forth
 let elapsed = 0.0;
 const noise3D = createNoise3D();
@@ -60,11 +77,19 @@ app.ticker.add((delta) => {
   const tNoise = elapsed / 200;
   tiles.forEach((tile) => {
     const NOISE_SPACE_SCALE = 1000;
+    const dist = Math.sqrt(
+      (tile.sprite.x - mouseposition.x) ** 2 +
+        (tile.sprite.y - mouseposition.y) ** 2
+    );
+    const cursorOffset = 40 / (dist + 1);
     tile.setScale(
-      noise3D(
-        tile.sprite.x / NOISE_SPACE_SCALE,
-        tile.sprite.y / NOISE_SPACE_SCALE,
-        tNoise
+      Math.max(
+        cursorOffset,
+        noise3D(
+          tile.sprite.x / NOISE_SPACE_SCALE,
+          tile.sprite.y / NOISE_SPACE_SCALE,
+          tNoise
+        )
       )
     );
   });

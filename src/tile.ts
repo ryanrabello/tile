@@ -4,9 +4,12 @@ import { scaleLinear } from "d3";
 
 const MAX_SCALE = 0.08;
 
+const sizeScale = scaleLinear([0, 1], [0.03, MAX_SCALE]);
+sizeScale.clamp(true);
+
 export class Tile {
   sprite: PIXI.Sprite;
-  static scaleScale = scaleLinear([0, 1], [0.03, MAX_SCALE]);
+  static sizeScale = sizeScale;
 
   constructor(app: PIXI.Application, texture: PIXI.Texture) {
     // Create the sprite and add it to the stage
@@ -18,6 +21,6 @@ export class Tile {
     app.stage.addChild(sprite);
   }
   setScale(scale: number) {
-    this.sprite.scale.set(Tile.scaleScale(scale));
+    this.sprite.scale.set(Tile.sizeScale(scale));
   }
 }
