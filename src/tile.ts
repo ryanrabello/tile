@@ -10,6 +10,7 @@ sizeScale.clamp(true);
 export class Tile {
   sprite: PIXI.Sprite;
   static sizeScale = sizeScale;
+  cursorSize: number;
 
   constructor(app: PIXI.Application, texture: PIXI.Texture) {
     // Create the sprite and add it to the stage
@@ -19,8 +20,16 @@ export class Tile {
     sprite.anchor.set(0.5);
     sprite.scale.set(MAX_SCALE);
     app.stage.addChild(sprite);
+    this.cursorSize = 0;
   }
-  setScale(scale: number) {
-    this.sprite.scale.set(Tile.sizeScale(scale));
+  setNoiseScale(size: number) {
+    this.sprite.scale.set(Tile.sizeScale(Math.max(size, this.cursorSize)));
+  }
+  setCursorSize(size: number) {
+    this.cursorSize = Math.min(Math.max(size, this.cursorSize), .7);
+  }
+  tick(delta: number) {
+    //  delta ~ 0.5 on 120 fps screen
+    this.cursorSize -= .3 / 120 / delta;
   }
 }

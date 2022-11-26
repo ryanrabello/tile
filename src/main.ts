@@ -73,23 +73,24 @@ interactor.on("pointermove", handler);
 let elapsed = 0.0;
 const noise3D = createNoise3D();
 app.ticker.add((delta) => {
+  // @ts-ignore
+  window.delta = delta;
   elapsed += delta;
   const tNoise = elapsed / 200;
   tiles.forEach((tile) => {
+    tile.tick(delta);
     const NOISE_SPACE_SCALE = 1000;
     const dist = Math.sqrt(
       (tile.sprite.x - mouseposition.x) ** 2 +
         (tile.sprite.y - mouseposition.y) ** 2
     );
     const cursorOffset = 40 / (dist + 1);
-    tile.setScale(
-      Math.max(
-        cursorOffset,
-        noise3D(
-          tile.sprite.x / NOISE_SPACE_SCALE,
-          tile.sprite.y / NOISE_SPACE_SCALE,
-          tNoise
-        )
+    tile.setCursorSize(cursorOffset);
+    tile.setNoiseScale(
+      noise3D(
+        tile.sprite.x / NOISE_SPACE_SCALE,
+        tile.sprite.y / NOISE_SPACE_SCALE,
+        tNoise
       )
     );
   });
