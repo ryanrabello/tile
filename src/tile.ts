@@ -1,10 +1,9 @@
 import * as PIXI from "pixi.js";
-import { Sprite } from "pixi.js";
-import { scaleLinear } from "d3";
+import {Sprite} from "pixi.js";
+import {scaleLinear} from "d3";
 
-const MAX_SCALE = 0.08;
-
-const sizeScale = scaleLinear([0, 1], [0.03, MAX_SCALE]);
+let range = [0.03, 0.08];
+const sizeScale = scaleLinear([0, 1], range);
 sizeScale.clamp(true);
 
 export class Tile {
@@ -18,7 +17,7 @@ export class Tile {
     const sprite = new Sprite(texture);
     this.sprite = sprite;
     sprite.anchor.set(0.5);
-    sprite.scale.set(MAX_SCALE);
+    sprite.scale.set(range[0]);
     app.stage.addChild(sprite);
     this.cursorSize = 0;
   }
@@ -26,10 +25,11 @@ export class Tile {
     this.sprite.scale.set(Tile.sizeScale(Math.max(size, this.cursorSize)));
   }
   setCursorSize(size: number) {
-    this.cursorSize = Math.min(Math.max(size, this.cursorSize), .7);
+    this.cursorSize = Math.min(Math.max(size, this.cursorSize), 0.7);
+    this.sprite.scale.set(Tile.sizeScale(this.cursorSize));
   }
   tick(delta: number) {
     //  delta ~ 0.5 on 120 fps screen
-    this.cursorSize -= .01 * delta;
+    this.cursorSize -= 0.01 * delta;
   }
 }

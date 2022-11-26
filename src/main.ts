@@ -3,7 +3,6 @@ import * as PIXI from "pixi.js";
 import { Graphics, Sprite, Texture } from "pixi.js";
 import { Tile } from "./tile";
 import { scaleLinear } from "d3";
-import { createNoise3D } from "simplex-noise";
 
 const element = document.querySelector("#app");
 
@@ -13,7 +12,6 @@ const dimensions = { width: doc.clientWidth, height: doc.clientHeight };
 // TODO: get resolution higher
 const app = new PIXI.Application({
   ...dimensions,
-  backgroundAlpha: 0,
   antialias: true,
 });
 // @ts-ignore
@@ -70,28 +68,14 @@ interactor.interactive = true;
 interactor.on("pointermove", handler);
 
 // Add a ticker callback to move the sprite back and forth
-let elapsed = 0.0;
-const noise3D = createNoise3D();
 app.ticker.add((delta) => {
-  // @ts-ignore
-  window.delta = delta;
-  elapsed += delta;
-  const tNoise = elapsed / 200;
   tiles.forEach((tile) => {
     tile.tick(delta);
-    const NOISE_SPACE_SCALE = 1000;
     const dist = Math.sqrt(
       (tile.sprite.x - mouseposition.x) ** 2 +
         (tile.sprite.y - mouseposition.y) ** 2
     );
     const cursorOffset = 40 / (dist + 1);
     tile.setCursorSize(cursorOffset);
-    tile.setNoiseScale(
-      noise3D(
-        tile.sprite.x / NOISE_SPACE_SCALE,
-        tile.sprite.y / NOISE_SPACE_SCALE,
-        tNoise
-      )
-    );
   });
 });
