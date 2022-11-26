@@ -30,21 +30,25 @@ export class Tile {
   }
 
   private setScale(s: number) {
-    if (s > .2) {
+    if (s > 0.2) {
       const scale = this.ironSprite.scale;
       this.ironSprite.scale.set(Math.max(Tile.sizeScale(s), scale.x));
     }
   }
 
   setCursor(x: number, y: number) {
-    const dist = Math.sqrt(
-    (this.hexSprite.x - x) ** 2 +
-    (this.hexSprite.y - y) ** 2
-    );
+    const xDiff = this.hexSprite.x - x;
+    const yDiff = this.hexSprite.y - y;
+    const dist = Math.sqrt(xDiff ** 2 + yDiff ** 2);
 
-    const cursorOffset = 10 / (dist + 1);
+    const asymptoticScale = 10 / (dist + 1);
 
-    this.setScale(cursorOffset);
+    const angle = Math.atan2(-yDiff, -xDiff);
+
+    this.setScale(asymptoticScale);
+    if (asymptoticScale > .5) {
+      this.setAngle(angle);
+    }
   }
 
   set x(x: number) {
@@ -54,5 +58,14 @@ export class Tile {
   set y(y: number) {
     this.hexSprite.y = y;
     this.ironSprite.y = y;
+  }
+
+  private setAngle(angle: number) {
+    const L = 5;
+    const x = Math.cos(angle) * L;
+    const y = Math.sin(angle) * L;
+
+    this.ironSprite.x = this.hexSprite.x + x;
+    this.ironSprite.y = this.hexSprite.y + y;
   }
 }
