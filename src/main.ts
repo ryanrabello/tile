@@ -1,5 +1,6 @@
 import "./style.css";
 import * as PIXI from "pixi.js";
+import "@pixi/graphics-extras";
 import { Graphics, Sprite, Texture } from "pixi.js";
 import { Tile } from "./tile";
 import { scaleLinear } from "d3";
@@ -13,19 +14,32 @@ const dimensions = { width: doc.clientWidth, height: doc.clientHeight };
 const app = new PIXI.Application({
   ...dimensions,
   antialias: true,
+  backgroundColor: 0xffffff,
 });
 // @ts-ignore
 element!.appendChild(app.view);
 
-// Create sprite texture
+// Create sprite textures
 const R = 200;
-const g = new Graphics();
+const hexG = new Graphics();
 // const c = '#0862ec';
-g.beginFill(0x0862ec);
-g.lineStyle(0);
-g.drawCircle(0, 0, R);
-g.endFill();
-const texture = app.renderer.generateTexture(g) as unknown as PIXI.Texture;
+hexG.beginFill(0xffffff);
+hexG.lineStyle(40, 0xeeeeee, 1);
+hexG.drawRegularPolygon?.(0, 0, R, 6, 0);
+hexG.endFill();
+const hexTexture = app.renderer.generateTexture(
+  hexG
+) as unknown as PIXI.Texture;
+
+const iron = new Graphics();
+// const c = '#0862ec';
+iron.beginFill(0x0);
+iron.lineStyle(0);
+iron.drawCircle(0, 0, 7);
+iron.endFill();
+const ironTexture = app.renderer.generateTexture(
+  iron
+) as unknown as PIXI.Texture;
 
 // Create tile coordinates
 const TILE_DENSITY = 4 / 100; // tile per pixel (linear)
@@ -41,9 +55,9 @@ const yScale = scaleLinear([0, yCount], [0, dimensions.height]);
 let isOffset = true;
 for (let y = 0; y < yCount; y++) {
   for (let x = isOffset ? 0 : 1; x < xCount; x++) {
-    const tile = new Tile(app, texture);
-    tile.sprite.x = xScale(x) + (isOffset ? 14 : 0);
-    tile.sprite.y = yScale(y) + 14;
+    const tile = new Tile(app, hexTexture, ironTexture);
+    tile.x = xScale(x) + (isOffset ? R * 0.06 : 0);
+    tile.y = yScale(y) + 14;
 
     tiles.push(tile);
   }
@@ -52,7 +66,6 @@ for (let y = 0; y < yCount; y++) {
 
 // Mouse following
 const interactor = new Sprite(Texture.EMPTY);
-
 interactor.x = 0;
 interactor.y = 0;
 interactor.width = dimensions.width;
@@ -67,15 +80,16 @@ let handler = (event: { global: { x: number; y: number } }) => {
 interactor.interactive = true;
 interactor.on("pointermove", handler);
 
+let isPressed = false;
+interactor.on("pointerdown", () => (isPressed = true));
+interactor.on("pointerup", () => (isPressed = false));
+interactor.on("pointerupoutside", () => (isPressed = false));
+
 // Add a ticker callback to move the sprite back and forth
-app.ticker.add((delta) => {
+app.ticker.add(() => {
   tiles.forEach((tile) => {
-    tile.tick(delta);
-    const dist = Math.sqrt(
-      (tile.sprite.x - mouseposition.x) ** 2 +
-        (tile.sprite.y - mouseposition.y) ** 2
-    );
-    const cursorOffset = 40 / (dist + 1);
-    tile.setCursorSize(cursorOffset);
+    if (isPressed) {
+      tile.setCursor(mouseposition.x, mouseposition.y);
+    }
   });
 });

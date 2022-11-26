@@ -1,35 +1,58 @@
 import * as PIXI from "pixi.js";
-import {Sprite} from "pixi.js";
-import {scaleLinear} from "d3";
+import { Sprite } from "pixi.js";
+import { scaleLinear } from "d3";
 
-let range = [0.03, 0.08];
+let range = [0.0, 1];
 const sizeScale = scaleLinear([0, 1], range);
 sizeScale.clamp(true);
 
 export class Tile {
-  sprite: PIXI.Sprite;
+  hexSprite: PIXI.Sprite;
+  ironSprite: PIXI.Sprite;
   static sizeScale = sizeScale;
-  cursorSize: number;
 
-  constructor(app: PIXI.Application, texture: PIXI.Texture) {
-    // Create the sprite and add it to the stage
-    // const sprite = PIXI.Sprite.from(typescriptLogoURL);
+  constructor(
+    app: PIXI.Application,
+    texture: PIXI.Texture,
+    ironTexture: PIXI.Texture
+  ) {
     const sprite = new Sprite(texture);
-    this.sprite = sprite;
-    sprite.anchor.set(0.5);
-    sprite.scale.set(range[0]);
+    this.hexSprite = sprite;
+    sprite.anchor.set(0.5); // TODO: remove extra scaling
+    sprite.scale.set(0.08);
     app.stage.addChild(sprite);
-    this.cursorSize = 0;
+
+    const ironSprite = new Sprite(ironTexture);
+    this.ironSprite = ironSprite;
+    ironSprite.anchor.set(0.5);
+    ironSprite.scale.set(0);
+    app.stage.addChild(ironSprite);
   }
-  setNoiseScale(size: number) {
-    this.sprite.scale.set(Tile.sizeScale(Math.max(size, this.cursorSize)));
+
+  private setScale(s: number) {
+    if (s > .2) {
+      const scale = this.ironSprite.scale;
+      this.ironSprite.scale.set(Math.max(Tile.sizeScale(s), scale.x));
+    }
   }
-  setCursorSize(size: number) {
-    this.cursorSize = Math.min(Math.max(size, this.cursorSize), 0.7);
-    this.sprite.scale.set(Tile.sizeScale(this.cursorSize));
+
+  setCursor(x: number, y: number) {
+    const dist = Math.sqrt(
+    (this.hexSprite.x - x) ** 2 +
+    (this.hexSprite.y - y) ** 2
+    );
+
+    const cursorOffset = 10 / (dist + 1);
+
+    this.setScale(cursorOffset);
   }
-  tick(delta: number) {
-    //  delta ~ 0.5 on 120 fps screen
-    this.cursorSize -= 0.01 * delta;
+
+  set x(x: number) {
+    this.hexSprite.x = x;
+    this.ironSprite.x = x;
+  }
+  set y(y: number) {
+    this.hexSprite.y = y;
+    this.ironSprite.y = y;
   }
 }
